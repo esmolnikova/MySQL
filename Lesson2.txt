@@ -1,0 +1,12 @@
+C:\Users\User>mysql
+mysql> create database example;
+mysql> use example;
+mysql> create table users (id serial, name varchar(100) not null unique);
+mysql> exit
+
+C:\Users\User>mysqldump -u root -p example >example.sql
+Enter password: ********
+C:\Users\User>mysql
+mysql> create database sample;
+mysql> exit
+C:\Users\User>mysql sample < example.sql
