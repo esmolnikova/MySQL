@@ -1,0 +1,74 @@
+use vk;
+show tables;
+select * from users limit 10;
+update users set updated_at = now() where updated_at < created_at ;
+desc profiles ;
+select * from profiles limit 50;
+update profiles set updated_at = now() where updated_at < created_at ;
+desc messages ;
+select * from messages limit 50;
+desc media ;
+select * from media limit 50;
+update media set
+ user_id  = FLOOR(1 + RAND() *100);
+-- http://dropbox.com/vk/filename.ext
+
+drop table if exists extencions;
+create temporary table extencions (name varchar(6));
+insert into extencions values
+	('jpeg'),
+	('mpeg'),
+	('mp3'),
+	('avi'),
+	('png');
+select * from extencions;
+update media set filename = concat (
+	'http://dropbox.com/vk/',
+	filename,
+	'.',
+	(select name from extencions order by rand() limit 1)
+);
+update media set
+ `size`  = FLOOR(10000 + RAND() *10000000);
+
+-- {"owner":"First Last"}
+select  first_name, last_name from users where id = 7;
+update media set metadata = concat (
+	'{"owner":"',
+	(select CONCAT (first_name, ' ', last_name)
+		from users where users.id = media.user_id),
+	'"}'
+	);
+alter table media modify column metadata JSON;
+select * from media_types;
+delete from media_types;
+insert into media_types (name) values
+	('image'),
+	('audio'),
+	('video');
+truncate media_types ;
+update media set
+ media_type_id  = FLOOR(1 + RAND() *3);
+desc friendship ;
+select * from friendship limit 50;
+select * from friendship_statuses;
+
+truncate friendship_statuses;
+insert into friendship_statuses (name) values
+	('Requested'),
+	('Confirmed'),
+	('Rejected');
+update friendship set
+ friendship_status_id  = FLOOR(1 + RAND() *3);	
+update friendship set updated_at = now() where updated_at < created_at ;
+desc communities ;
+select * from communities;
+update communities set updated_at = now() where updated_at < created_at ;
+delete from communities where id >30;
+select * from communities_users;
+
+update communities_users set
+user_id  = floor(1+ rand()*100),
+community_id = floor(1 + rand()*30);
+desc profiles;
+alter table profiles modify column gender enum('F', 'M');
