@@ -1,0 +1,78 @@
+create table users (
+id INT unsigned not null auto_increment primary key,
+first_name VARCHAR (150) not null,
+last_name VARCHAR (150) not null,
+email VARCHAR (150) not null unique,
+phone VARCHAR (30) not null unique,
+created_at DATETIME default current_timestamp ,
+updated_at DATETIME default current_timestamp on update current_timestamp
+);
+
+create table profiles (
+user_id INT unsigned not null primary key,
+gender CHAR(1) not null,
+city VARCHAR (150) not null,
+country VARCHAR (150) not null,
+created_at DATETIME default current_timestamp ,
+updated_at DATETIME default current_timestamp on update current_timestamp
+);
+
+create table messages (
+id INT unsigned not null auto_increment primary key COMMENT "идентификатор строки",
+from_user_id INT unsigned not null COMMENT "ссылка на отправителя сообщения",
+to_user_id INT unsigned not null COMMENT "ссылка на получателя сообщения",
+body TEXT not null COMMENT "Текст сообщения",
+is_important BOOLEAN COMMENT "Признак важности",
+is_delivered BOOLEAN COMMENT "Признак доставки", 
+created_at DATETIME default NOW() COMMENT "Время создания строки"
+) COMMENT "Сообщения";
+
+create table friendship (
+user_id INT unsigned not null COMMENT "Ссылка на инициатора дружеских отнощений",
+friend_id INT unsigned not null COMMENT "Ссылка на получателя приглашения дружить",
+friendship_status_id INT unsigned not null COMMENT "Ссылка на статус (текущее состояние)",
+confirmed_at DATETIME COMMENT "Время подтверждения приглашения",
+created_at DATETIME default current_timestamp COMMENT "Время создания строки",
+updated_at DATETIME default current_timestamp on update current_timestamp COMMENT "Время обновления строки",
+primary key (user_id, friend_id) COMMENT "Составной первичный ключ"
+) COMMENT "Таблица дружбы";
+
+create table friendship_statuses (
+id INT unsigned not null auto_increment primary key COMMENT "Идентификатор строки",
+name VARCHAR(150) not null unique COMMENT "Название статуса",
+created_at DATETIME default current_timestamp COMMENT "Время создания строки",
+updated_at DATETIME default current_timestamp on update current_timestamp COMMENT "Время обновления строки"
+) COMMENT "Статусы дружбы";
+
+create table communities (
+id INT unsigned not null auto_increment primary key COMMENT "Идентификатор строки",
+name VARCHAR(150) not null unique COMMENT "Название группы",
+created_at DATETIME default current_timestamp COMMENT "Время создания строки",
+updated_at DATETIME default current_timestamp on update current_timestamp COMMENT "Время обновления строки"
+) COMMENT "Группы";
+
+
+create table communities_users (
+community_id INT unsigned not null COMMENT "Ссылка группу",
+user_id INT unsigned not null COMMENT "Ссылка на пользователя",
+created_at DATETIME default current_timestamp COMMENT "Время создания строки",
+primary key (community_id, user_id) COMMENT "Составной первичный ключ"
+) COMMENT "Участники групп, связь между пользователями и группами";
+
+create table media (
+id INT unsigned not null auto_increment primary key COMMENT "Идентификатор строки",
+user_id INT unsigned not null COMMENT "Ссылка на пользователя, который загрузил файл",
+filename VARCHAR(255) not null COMMENT "Путь к файлу",
+size INT not null COMMENT "Размер файла",
+metadata JSON COMMENT "Метаданные файла",
+media_type_id INT unsigned not null COMMENT "Ссылка на тип контента",
+created_at DATETIME default current_timestamp COMMENT "Время создания строки",
+updated_at DATETIME default current_timestamp on update current_timestamp COMMENT "Время обновления строки"
+) COMMENT "Медиафайлы";
+
+create table media_types (
+id INT unsigned not null auto_increment primary key COMMENT "Идентификатор строки",
+name VARCHAR(255) not null unique COMMENT "Название типа",
+created_at DATETIME default current_timestamp COMMENT "Время создания строки",
+updated_at DATETIME default current_timestamp on update current_timestamp COMMENT "Время обновления строки"
+) COMMENT "Типы медиафайлов";
