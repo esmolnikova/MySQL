@@ -1,0 +1,128 @@
+1. use vk;
+drop table if exists likes;
+create table likes (
+ id INT unsigned not null auto_increment primary key,
+ user_id INT unsigned not null,
+ target_id int unsigned not null,
+ target_type enum('messages', 'users', 'posts', 'media') not null,
+ created_at datetime default current_timestamp
+);
+
+drop table if exists target_types;
+create temporary table target_types (
+ name Varchar(100) not null unique
+);
+insert into target_types (name) values
+('messages'),
+('users'),
+('media'),
+('posts');
+
+insert into likes
+ select
+  id,
+  floor(1+(rand()*100)),
+  floor(1+(rand()*100)),
+  (select name from target_types order by rand() limit 1),
+  current_timestamp
+ from messages;
+
+select * from likes;
+
+drop table if exists posts;
+create table posts (
+id int unsigned not null auto_increment primary key,
+user_id int unsigned not null,
+community_id int unsigned,
+head varchar(255),
+body text not null,
+media_id int unsigned,
+is_public boolean default true,
+is_archived boolean default false,
+created_at datetime default current_timestamp,
+updated_at datetime default current_timestamp on update current_timestamp
+);
+дамп по заполненной таблице posts отдельным файлом
+изменяла данные не сохранилось скрипта после случайной  перезагрузки компьютера
+
+2. alter table profiles
+ add constraint profiles_user_id_fk
+  foreign key (user_id) references users(id);
+ 
+alter table messages
+ add constraint messages_from_user_id_fk
+  foreign key (from_user_id) references users(id),
+ add constraint messages_to_user_id_fk
+  foreign key (to_user_id) references users(id);
+
+ alter table friendship 
+ add constraint friendship_user_id_fk
+  foreign key (user_id) references users(id),
+ add constraint friendship_friend_id_fk
+  foreign key (friend_id) references users(id),
+ add constraint friendship_status_id_fk
+  foreign key (friendship_status_id) references (friendship_statuses(id);
+ 
+alter table posts
+ add constraint posts_user_id_fk
+  foreign key (user_id) references users(id),
+ add constraint posts_community_id_fk
+  foreign key (community_id) references communities(id),
+  add constraint media_id_fk
+  foreign key (media_id) references media(id); 
+ 
+alter table media 
+ add constraint media_user_id_fk
+  foreign key (user_id) references users(id), 
+ add constraint media_mediatype_id_fk
+  foreign key (mediatype_id) references media_types(id);
+ 
+alter table likes
+ add constraint likes_user_id_fk
+  foreign key (user_id) references users(id);
+
+ alter table communities_users
+ add constraint communities_users_community_id_fk
+  foreign key (community_id) references communities(id),
+ add constraint communities_users_user_id_fk
+  foreign key (user_id) references users(id);
+
+3.
+не смогла понять, где не правильно(
+
+вот это работает:
+
+select count(*) 
+ from likes 
+ where likes.user_id in 
+  (select user_id from profiles where profiles.gender = 'F');
+ select count(*) 
+ from likes 
+ where likes.user_id in 
+  (select user_id from profiles where profiles.gender = 'M');
+
+и вот это работает:
+
+select if(51 > 49,'большее количество лайков поставлено женщинами','большее количество лайков поставлено мужчинами');
+
+а объединяю, и не работает:
+
+ select if(
+ (count(*) from likes 
+   where likes.user_id in 
+    (select user_id from profiles where profiles.gender = 'F'))
+ > (count(*) from likes 
+     where likes.user_id in 
+      (select user_id from profiles where profiles.gender = 'M')),
+'большее количество лайков поставлено женщинами','большее количество лайков поставлено мужчинами');
+
+4.
+select 
+ id,
+ first_name,
+ last_name,
+ (select count(*) from messages where messages.from_user_id = users.id) as count_messages,
+ (select count(*) from posts where posts.user_id = users.id) as count_posts,
+ (select count(*) from media where media.user_id = users.id) as count_media,
+ (select count(*) from likes where likes.user_id = users.id) as count_likes
+  from users group by users.id;
